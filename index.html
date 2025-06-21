@@ -1,9 +1,270 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>My AI journey begins!</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My AI Journey Begins</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Open+Sans&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --midnight-blue: #1A1F36;
+      --bright-cyan: #00C2CB;
+      --soft-white: #F8F9FA;
+      --slate-gray: #6C757D;
+      --electric-coral: #FF6B6B;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 16px;
+      background-color: var(--soft-white);
+      color: var(--slate-gray);
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 60px auto;
+      background-color: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    }
+
+    h1, h2 {
+      font-family: 'Montserrat', sans-serif;
+      color: var(--midnight-blue);
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      font-size: 1.25em;
+      margin-top: 40px;
+    }
+
+    p {
+      line-height: 1.6;
+    }
+
+    .button-group {
+      margin-top: 20px;
+    }
+
+    button {
+      margin: 10px 10px 0 0;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-family: 'Open Sans', sans-serif;
+      font-weight: bold;
+      background-color: var(--electric-coral);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: var(--bright-cyan);
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 10;
+    }
+
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+      z-index: 11;
+      display: none;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      color: var(--slate-gray);
+    }
+
+    .popup h3 {
+      font-family: 'Montserrat', sans-serif;
+      color: var(--midnight-blue);
+      margin-top: 0;
+    }
+
+    .close-btn {
+      margin-top: 20px;
+      background-color: var(--slate-gray);
+      color: white;
+    }
+
+    .close-btn:hover {
+      background-color: var(--midnight-blue);
+    }
+
+    .name-form {
+      margin: 30px 0;
+    }
+
+    .name-input {
+      padding: 12px;
+      font-size: 16px;
+      border: 2px solid var(--slate-gray);
+      border-radius: 6px;
+      margin-right: 10px;
+      width: 200px;
+    }
+
+    .experience-section {
+      display: none;
+    }
+
+    .welcome-message {
+      font-size: 1.2em;
+      color: var(--midnight-blue);
+      margin: 20px 0;
+      padding: 15px;
+      border-left: 4px solid var(--electric-coral);
+      background-color: var(--soft-white);
+    }
+
+    .final-message {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--slate-gray);
+      font-style: italic;
+      color: var(--midnight-blue);
+    }
+  </style>
 </head>
 <body>
-  <h1>Hello, my name is Harry and I am learning to direct AI.</h1>
+  <div class="container">
+    <h1>🚀 Welcome to My AI Journey</h1>
+    <p>This space is where my journey into directing AI begins. I share simple projects, experiments with AI tools, and lessons learned along the way. Whether you're exploring AI or just visiting, I'm glad you're here.</p>
+
+    <div class="name-form">
+      <input type="text" id="nameInput" class="name-input" placeholder="What's your name?" required>
+      <button onclick="submitName()">Continue</button>
+    </div>
+
+    <div id="welcomeMessage" class="welcome-message" style="display: none;"></div>
+
+    <div id="experienceSection" class="experience-section">
+      <h2>How would you describe your experience with AI?</h2>
+      <div class="button-group">
+        <button onclick="showMessage('beginner')">Beginner</button>
+        <button onclick="showMessage('intermediate')">Intermediate</button>
+        <button onclick="showMessage('just curious')">Just Curious</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay and Popup -->
+  <div class="overlay" id="overlay"></div>
+
+  <div class="popup" id="popup">
+    <h3 id="popup-title"></h3>
+    <p id="popup-message"></p>
+    <p class="final-message">Thanks for visiting. No matter where you are on your path, I wish you curiosity, courage, and a bit of fun as you explore the world of AI.<br><br>Let's keep moving forward and see what we can build together.</p>
+    <button class="close-btn" onclick="hidePopup()">Close</button>
+  </div>
+
+  <script>
+    let userName = '';
+
+    function submitName() {
+      const nameInput = document.getElementById('nameInput');
+      userName = nameInput.value.trim();
+      
+      if (!userName) {
+        alert('Please enter your name');
+        return;
+      }
+
+      // Display personalized welcome message
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      if (userName.toLowerCase() === 'harry') {
+        welcomeMessage.textContent = `🚀 Behold! The visionary AI Builder ${userName} has arrived — time to build greatness! 🚀`;
+      } else {
+        welcomeMessage.textContent = `Welcome, ${userName}! Ready to explore the world of possibilities together?`;
+      }
+      welcomeMessage.style.display = 'block';
+
+      // Show the experience section
+      document.getElementById('experienceSection').style.display = 'block';
+      
+      // Hide the name form
+      document.querySelector('.name-form').style.display = 'none';
+    }
+
+    function showMessage(level) {
+      fetch("http://127.0.0.1:5000/get-message", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ 
+          level: level,
+          name: userName
+        })
+      })
+      .then(response => {
+        console.log("Response status:", response.status);
+        if (!response.ok) {
+          return response.text().then(text => {
+            throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Received data:", data);
+        document.getElementById("popup-title").textContent = data.title.replace('!', `, ${userName}!`);
+        document.getElementById("popup-message").textContent = data.message;
+        document.getElementById("popup").style.display = "block";
+        document.getElementById("overlay").style.display = "block";
+      })
+      .catch(error => {
+        console.error("Detailed error:", error);
+        alert("Could not reach the server. Check the browser console for details.");
+      });
+    }
+
+    function hidePopup() {
+      document.getElementById("popup").style.display = "none";
+      document.getElementById("overlay").style.display = "none";
+    }
+
+    window.addEventListener("click", function(event) {
+      const popup = document.getElementById("popup");
+      const overlay = document.getElementById("overlay");
+      if (event.target === overlay) {
+        hidePopup();
+      }
+    });
+
+    // Handle Enter key in name input
+    document.getElementById('nameInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        submitName();
+      }
+    });
+  </script>
 </body>
 </html>
+
