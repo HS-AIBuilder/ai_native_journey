@@ -2,9 +2,35 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from welcome import get_ai_message
 import os
+import logging
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app)
+
+# Configure CORS for production
+CORS(app, resources={
+    r"/get-message": {"origins": os.getenv('ALLOWED_ORIGINS', '*').split(',')},
+    r"/": {"origins": os.getenv('ALLOWED_ORIGINS', '*').split(',')}
+})
+
+# Security headers
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    return response
 
 # ------------------------------------------------------------------------------
 #  Main page
@@ -14,7 +40,7 @@ def index():
     """
     Serves the landing page (index.html) from the root directory.
     """
-    print("Serving index.html")
+    logger.info("Serving index.html")
     return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'index.html')
 
 # ------------------------------------------------------------------------------
@@ -25,10 +51,10 @@ def get_message():
     """
     Returns a JSON payload containing the message based on the user's experience level.
     """
-    print("Received request to /get-message")
+    logger.info("Received request to /get-message")
     try:
         data = request.get_json()
-        print("Request data:", data)
+        logger.debug("Request data: %s", data)
         level = data.get('level', 'other')
         name = data.get('name', '')
         
@@ -42,15 +68,20 @@ def get_message():
             else:
                 response['title'] = response['title'].replace('!', f', {name}!')
             
-        print("Sending response:", response)
+        logger.info("Sending response for level: %s", level)
+        logger.debug("Response data: %s", response)
         return jsonify(response)
     except Exception as e:
-        print("Error:", str(e))
-        return jsonify({"error": str(e)}), 500
+        logger.error("Error processing request: %s", str(e), exc_info=True)
+        return jsonify({"error": "An internal error occurred"}), 500
 
 # ------------------------------------------------------------------------------
 #  Entry point
 # ------------------------------------------------------------------------------
 if __name__ == "__main__":
-    # debug=True enables hot reload while you iterate
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # Use environment variables for configuration
+    debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    host = os.getenv('FLASK_HOST', '0.0.0.0')
+    port = int(os.getenv('FLASK_PORT', 5000))
+    
+    app.run(debug=debug, host=host, port=port)
