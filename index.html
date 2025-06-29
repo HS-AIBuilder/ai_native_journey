@@ -186,6 +186,33 @@
   <script>
     let userName = '';
 
+    // Client-side message generation (converted from Python welcome.py)
+    function getAIMessage(level) {
+      const normalizedLevel = level.trim().toLowerCase();
+
+      if (normalizedLevel === "beginner") {
+        return {
+          title: "Welcome, Beginner!",
+          message: "You're in exactly the right place. I'm learning too, one step at a time.\n\nWould you like to start exploring basic concepts like:\n- Large Language Models (LLMs)\n- Prompt engineering\n- A short history of AI\n\n👉 Start here: https://example.com/start-here"
+        };
+      } else if (normalizedLevel === "intermediate") {
+        return {
+          title: "Hello, Explorer!",
+          message: "Nice! You've already started exploring.\n\nWould you like to dive into:\n- Practical applications of AI\n- Comparing AI tools\n- Reflections on AI and society\n\n👉 Explore next: https://example.com/next-steps"
+        };
+      } else if (normalizedLevel === "just curious") {
+        return {
+          title: "Hi there, Curious Mind!",
+          message: "Curiosity is the best starting point.\n\nWant to try:\n- What AI is and how it works?\n- Why people are excited (or nervous) about it?\n- Fun ways to experiment with AI tools?\n\n👉 Try this: https://example.com/curious-path"
+        };
+      } else {
+        return {
+          title: "Welcome!",
+          message: "Thanks for stopping by. Feel free to explore and learn at your own pace."
+        };
+      }
+    }
+
     function submitName() {
       const nameInput = document.getElementById('nameInput');
       userName = nameInput.value.trim();
@@ -212,37 +239,24 @@
     }
 
     function showMessage(level) {
-      fetch("/get-message", {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify({ 
-          level: level,
-          name: userName
-        })
-      })
-      .then(response => {
-        console.log("Response status:", response.status);
-        if (!response.ok) {
-          return response.text().then(text => {
-            throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
-          });
+      // Get message data from local function instead of server API
+      const data = getAIMessage(level);
+      
+      // Personalize the title with the user's name
+      let personalizedTitle = data.title;
+      if (userName) {
+        if (userName.toLowerCase() === "harry") {
+          personalizedTitle = `🚀 Visionary AI Builder ${userName}!`;
+        } else {
+          personalizedTitle = data.title.replace('!', `, ${userName}!`);
         }
-        return response.json();
-      })
-      .then(data => {
-        console.log("Received data:", data);
-        document.getElementById("popup-title").textContent = data.title.replace('!', `, ${userName}!`);
-        document.getElementById("popup-message").textContent = data.message;
-        document.getElementById("popup").style.display = "block";
-        document.getElementById("overlay").style.display = "block";
-      })
-      .catch(error => {
-        console.error("Detailed error:", error);
-        alert("Could not reach the server. Check the browser console for details.");
-      });
+      }
+      
+      // Display the popup with the message
+      document.getElementById("popup-title").textContent = personalizedTitle;
+      document.getElementById("popup-message").textContent = data.message;
+      document.getElementById("popup").style.display = "block";
+      document.getElementById("overlay").style.display = "block";
     }
 
     function hidePopup() {
